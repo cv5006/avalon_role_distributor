@@ -57,44 +57,46 @@ def validate_role_packages(role_packages):
     special_evil = {'assassin', 'morgana', 'mordred', 'oberon'}
     general_evil = {'minion_of_mordred'}
     
-    # 각 패키지별 조합 검증
+    # 각 패키지별 조합 검증 (구조상 필요 없음.)
+    # for i, package in enumerate(role_packages):
+    #     package_set = set(package)
+        
+    #     # 1. 선악이 같은 역할이 되는 것 방지
+    #     if package_set & good_roles and package_set & evil_roles:
+    #         good_in_package = ', '.join(package_set & good_roles)
+    #         evil_in_package = ', '.join(package_set & evil_roles)
+    #         raise ValueError(f"플레이어 {i+1}: 선인({good_in_package})과 악인({evil_in_package})을 동시에 가질 수 없습니다. "
+    #                        f"한 플레이어는 하나의 진영에만 속해야 합니다.")
+        
+    #     # 2. 멀린과 퍼시벌이 같은 역할이 되는 것 방지
+    #     if 'merlin' in package_set and 'percival' in package_set:
+    #         raise ValueError(f"플레이어 {i+1}: 멀린과 퍼시벌을 동시에 가질 수 없습니다. "
+    #                        f"퍼시벌은 멀린을 찾아야 하는 역할이므로 같은 플레이어가 될 수 없습니다.")
+        
+    #     # 3. 일반 선인 + 특수 선인 방지
+    #     if package_set & general_good and package_set & special_good:
+    #         special_in_package = ', '.join(package_set & special_good)
+    #         raise ValueError(f"플레이어 {i+1}: 충성스러운 신하와 특수 선인({special_in_package})을 동시에 가질 수 없습니다. "
+    #                        f"충성스러운 신하는 특별한 능력이 없는 일반 선인이므로 특수 역할과 중복될 수 없습니다.")
+        
+    #     # 4. 일반 악인 + 특수 악인 방지
+    #     if package_set & general_evil and package_set & special_evil:
+    #         special_in_package = ', '.join(package_set & special_evil)
+    #         raise ValueError(f"플레이어 {i+1}: 모드레드의 부하와 특수 악인({special_in_package})을 동시에 가질 수 없습니다. "
+    #                        f"모드레드의 부하는 특별한 능력이 없는 일반 악인이므로 특수 역할과 중복될 수 없습니다.")
+    
+    # 같은 플레이어(패키지) 내 금지된 조합 확인
     for i, package in enumerate(role_packages):
         package_set = set(package)
-        
-        # 1. 선악이 같은 역할이 되는 것 방지
-        if package_set & good_roles and package_set & evil_roles:
-            good_in_package = ', '.join(package_set & good_roles)
-            evil_in_package = ', '.join(package_set & evil_roles)
-            raise ValueError(f"플레이어 {i+1}: 선인({good_in_package})과 악인({evil_in_package})을 동시에 가질 수 없습니다. "
-                           f"한 플레이어는 하나의 진영에만 속해야 합니다.")
-        
-        # 2. 멀린과 퍼시벌이 같은 역할이 되는 것 방지
-        if 'merlin' in package_set and 'percival' in package_set:
-            raise ValueError(f"플레이어 {i+1}: 멀린과 퍼시벌을 동시에 가질 수 없습니다. "
-                           f"퍼시벌은 멀린을 찾아야 하는 역할이므로 같은 플레이어가 될 수 없습니다.")
-        
-        # 3. 일반 선인 + 특수 선인 방지
-        if package_set & general_good and package_set & special_good:
-            special_in_package = ', '.join(package_set & special_good)
-            raise ValueError(f"플레이어 {i+1}: 충성스러운 신하와 특수 선인({special_in_package})을 동시에 가질 수 없습니다. "
-                           f"충성스러운 신하는 특별한 능력이 없는 일반 선인이므로 특수 역할과 중복될 수 없습니다.")
-        
-        # 4. 일반 악인 + 특수 악인 방지
-        if package_set & general_evil and package_set & special_evil:
-            special_in_package = ', '.join(package_set & special_evil)
-            raise ValueError(f"플레이어 {i+1}: 모드레드의 부하와 특수 악인({special_in_package})을 동시에 가질 수 없습니다. "
-                           f"모드레드의 부하는 특별한 능력이 없는 일반 악인이므로 특수 역할과 중복될 수 없습니다.")
-    
-    # 기존 금지된 조합 확인
-    for forbidden in FORBIDDEN_COMBINATIONS:
-        if forbidden[0] in all_roles and forbidden[1] in all_roles:
-            reason = ""
-            if forbidden == ('mordred', 'oberon') or forbidden == ('oberon', 'mordred'):
-                reason = "모르드레드는 멀린이 볼 수 없고, 오베론은 악인들이 볼 수 없어서 서로 고립되어 게임 밸런스가 깨집니다."
-            elif forbidden == ('morgana', 'oberon'):
-                reason = "모르가나는 퍼시벌을 속여야 하는데, 오베론과 함께하면 악인 정보를 몰라 역할 수행이 어렵습니다."
-            
-            raise ValueError(f"금지된 조합: {forbidden[0]} + {forbidden[1]}. {reason}")
+        for forbidden in FORBIDDEN_COMBINATIONS:
+            if forbidden[0] in package_set and forbidden[1] in package_set:
+                reason = ""
+                if forbidden == ('mordred', 'oberon') or forbidden == ('oberon', 'mordred'):
+                    reason = "모르드레드는 멀린이 볼 수 없고, 오베론은 악인들이 볼 수 없어서 서로 고립되어 게임 밸런스가 깨집니다."
+                elif forbidden == ('morgana', 'oberon'):
+                    reason = "모르가나는 퍼시벌을 속여야 하는데, 오베론과 겸직하면 악인 정보를 몰라 역할 수행이 어렵습니다."
+                
+                raise ValueError(f"플레이어 {i+1}: 금지된 겸직 조합 {forbidden[0]} + {forbidden[1]}. {reason}")
     
     # 기본 역할 존재 확인
     if 'merlin' not in all_roles:

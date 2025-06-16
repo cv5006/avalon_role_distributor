@@ -1,4 +1,5 @@
 {% extends 'game/includes/base.html' %}
+{% load role_extras %}
 {% block head_title %}게임 시작{% endblock %}
 {% block page_title %}게임 시작{% endblock %}
 
@@ -41,24 +42,18 @@
                 <div class="info-item composition-info">
                     <span class="info-label">게임 구성</span>
                     <div class="composition-summary">
-                        {% with total_players=players_in_session|length %}
                         <div class="team-composition good-team">
-                            <span class="team-header">🕊️ 선인 
-                                {% if total_players == 5 %}3{% elif total_players == 6 %}4{% elif total_players == 7 %}4{% elif total_players == 8 %}5{% elif total_players == 9 %}6{% elif total_players == 10 %}6{% else %}{{ total_players|add:"-2" }}{% endif %}명
-                            </span>
+                            <span class="team-header">{{ "loyal_servant"|role_emoji }} 선인 {{ good_total }}명</span>
                             <span class="team-details">
-                                (멀린 1명{% if game_session.option1 %}, 퍼시벌 1명{% endif %}{% if total_players == 5 %}{% if game_session.option1 %}, 일반 선인 1명{% else %}, 일반 선인 2명{% endif %}{% elif total_players == 6 %}{% if game_session.option1 %}, 일반 선인 2명{% else %}, 일반 선인 3명{% endif %}{% elif total_players == 7 %}{% if game_session.option1 %}, 일반 선인 2명{% else %}, 일반 선인 3명{% endif %}{% elif total_players >= 8 %}, 일반 선인 여러명{% endif %})
+                                ({% for role, count in good_composition.items %}{{ role }} {{ count }}명{% if not forloop.last %}, {% endif %}{% endfor %})
                             </span>
                         </div>
                         <div class="team-composition evil-team">
-                            <span class="team-header">😈 악인 
-                                {% if total_players == 5 %}2{% elif total_players == 6 %}2{% elif total_players == 7 %}3{% elif total_players == 8 %}3{% elif total_players == 9 %}3{% elif total_players == 10 %}4{% else %}2{% endif %}명
-                            </span>
+                            <span class="team-header">{{ "minion_of_mordred"|role_emoji }} 악인 {{ evil_total }}명</span>
                             <span class="team-details">
-                                (암살자 1명{% if game_session.option2 %}, 모르가나 1명{% endif %}{% if total_players == 5 %}{% if not game_session.option2 %}, 일반 악인 1명{% endif %}{% elif total_players == 6 %}{% if not game_session.option2 %}, 일반 악인 1명{% endif %}{% elif total_players == 7 %}{% if game_session.option2 %}, 일반 악인 1명{% else %}, 일반 악인 2명{% endif %}{% elif total_players >= 8 %}, 일반 악인 여러명{% endif %})
+                                ({% for role, count in evil_composition.items %}{{ role }} {{ count }}명{% if not forloop.last %}, {% endif %}{% endfor %})
                             </span>
                         </div>
-                        {% endwith %}
                     </div>
                 </div>
             </div>
@@ -96,15 +91,44 @@
             
             <div class="role-content">
                 <div class="role-image-container">
-                    <img src="{{ player.role_image }}" alt="{{ player.role }}" class="role-image">
+                    {% if player.role_images and player.role_images|length > 1 %}
+                        <!-- 다중 역할 이미지 -->
+                        <div class="multi-role-images">
+                            {% for image in player.role_images %}
+                                <img src="{{ image }}" alt="역할 {{ forloop.counter }}" class="role-image-small-role">
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <!-- 단일 역할 이미지 -->
+                        <img src="{% if player.role_images.0 %}{{ player.role_images.0 }}{% else %}/static/default_role.png{% endif %}" alt="{{ player.primary_role }}" class="role-image">
+                    {% endif %}
                 </div>
                 
                 <div class="role-intro">
-                    <h4 class="role-name-display">{{ player.role_intro }}</h4>
+                    {% if player.role_messages and player.role_messages|length > 0 %}
+                        {% for message in player.role_messages %}
+                            <h4 class="role-name-display">
+                                {% with player.roles|get_role_at_index:forloop.counter0 as current_role %}
+                                    {% if current_role %}
+                                        {{ current_role|role_emoji }} {{ message.bold }}
+                                    {% else %}
+                                        {{ message.bold }}
+                                    {% endif %}
+                                {% endwith %}
+                            </h4>
+                        {% endfor %}
+                    {% endif %}
                 </div>
                 
                 <div class="role-description">
-                    <p>{{ role_detail|linebreaksbr }}</p>
+                    {% if player.role_messages and player.role_messages|length > 0 %}
+                        {% for message in player.role_messages %}
+                            <div class="role-detail-section">
+                                <p>{{ message.desc|linebreaksbr|safe }}</p>
+                                {% if not forloop.last %}<hr class="role-separator">{% endif %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
         </div>

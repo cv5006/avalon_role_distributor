@@ -31,29 +31,29 @@ class ImageManager:
         self.evil_img_counter = 1
     
     def get_role_image(self, role_name):
-        """역할에 따른 이미지 경로 반환"""
+        """역할에 따른 이미지 경로 반환 (Django MEDIA_URL 형태)"""
         if role_name == 'merlin':
-            return './media/merlin.png'
+            return '/media/merlin.png'
         elif role_name == 'percival':
-            return './media/percival.png'
+            return '/media/percival.png'
         elif role_name == 'assassin':
-            return './media/assassin.png'
+            return '/media/assassin.png'
         elif role_name == 'morgana':
-            return './media/morgana.png'
+            return '/media/morgana.png'
         elif role_name == 'oberon':
-            return './media/oberon.png'
+            return '/media/oberon.png'
         elif role_name == 'mordred':
-            return './media/mordred.png'
+            return '/media/mordred.png'
         elif role_name == 'loyal_servant':
             # 선인 이미지 순환 (1-5)
             img_num = self.good_img_counter
             self.good_img_counter = (self.good_img_counter % 5) + 1
-            return f'./media/good_guy_{img_num}.png'
+            return f'/media/good_guy_{img_num}.png'
         else:  # minion_of_mordred 등 기타 악인
             # 악인 이미지 순환 (1-3)
             img_num = self.evil_img_counter
             self.evil_img_counter = (self.evil_img_counter % 3) + 1
-            return f'./media/bad_guy_{img_num}.png'
+            return f'/media/bad_guy_{img_num}.png'
 
 def get_visible_players(player, all_players, message_loader):
     """
@@ -119,7 +119,7 @@ def generate_player_messages(assigned_players):
         if not player.roles:
             result[player.name] = {
                 "messages": [{"bold": "❓ 역할이 배정되지 않았습니다.", "desc": "역할 배정에 문제가 있습니다."}],
-                "images": ["./media/unknown.png"],
+                "images": ["/media/unknown.png"],
                 "roles": [],
                 "faction": "unknown"
             }
@@ -142,11 +142,13 @@ def generate_player_messages(assigned_players):
             bold = message_template.get("bold", f"❓ {role_name}")
             desc = message_template.get("desc", f"당신은 {role_name}입니다.")
             
-            # final_visible_players 및 target_players 치환
+            # final_visible_players 및 target_players 치환 (굵게 표시)
+            bold_visible_players = f"<strong>{final_visible_players}</strong>" if final_visible_players != "없음" else "<strong>없음</strong>"
+            
             if "{final_visible_players}" in desc:
-                desc = desc.format(final_visible_players=final_visible_players)
+                desc = desc.format(final_visible_players=bold_visible_players)
             elif "{target_players}" in desc:
-                desc = desc.format(target_players=final_visible_players)
+                desc = desc.format(target_players=bold_visible_players)
             
             messages.append({
                 "bold": bold,

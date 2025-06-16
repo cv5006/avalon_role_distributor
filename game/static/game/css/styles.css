@@ -1216,6 +1216,54 @@ input[type="checkbox"] {
     font-size: 0.95rem;
 }
 
+/* 겸직 역할 구분 스타일 */
+.role-detail-section {
+    margin-bottom: 1.5rem;
+}
+
+.role-detail-section:last-child {
+    margin-bottom: 0;
+}
+
+.role-separator {
+    border: none;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.1), transparent);
+    margin: 1.5rem 0;
+    position: relative;
+}
+
+.role-separator::after {
+    content: '⚔️';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 0 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* 겸직 시 역할 이름 구분 */
+.role-name-display:not(:first-child) {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.role-name-display:not(:first-child)::before {
+    content: '⚔️';
+    position: absolute;
+    left: 50%;
+    top: -0.5rem;
+    transform: translateX(-50%);
+    background: white;
+    padding: 0 0.5rem;
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.4);
+}
+
 /* 호스트 관리 카드 (위험) */
 .host-actions-card.danger {
     background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(255, 107, 107, 0.1) 100%);
@@ -1484,6 +1532,15 @@ input[type="checkbox"] {
         height: 50px;
     }
     
+    .role-reveal-image-small {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .multi-role-images {
+        gap: 2px;
+    }
+    
     .player-role-nickname {
         font-size: 0.9rem;
     }
@@ -1491,6 +1548,16 @@ input[type="checkbox"] {
     .role-badge {
         font-size: 0.75rem;
         padding: 0.25rem 0.5rem;
+    }
+    
+    .multi-roles .role-badge {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.3rem;
+    }
+    
+    .role-image-small-role {
+        width: 80px;
+        height: 80px;
     }
     
     .new-game-card {
@@ -1704,6 +1771,56 @@ input[type="checkbox"] {
 .role-badge.role-morgana {
     background: rgba(118, 75, 162, 0.15);
     color: #764ba2;
+}
+
+.role-badge.role-mordred {
+    background: rgba(139, 69, 19, 0.15);
+    color: #8b4513;
+}
+
+.role-badge.role-oberon {
+    background: rgba(34, 139, 34, 0.15);
+    color: #228b22;
+}
+
+/* 다중 역할 이미지 스타일 */
+.multi-role-images {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
+}
+
+.role-reveal-image-small {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 다중 역할 뱃지 스타일 */
+.multi-roles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.multi-roles .role-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
+}
+
+/* 역할 페이지의 다중 이미지 스타일 */
+.role-image-small-role {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* 새 게임 추천 카드 */
