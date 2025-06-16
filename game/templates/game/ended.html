@@ -18,21 +18,7 @@
                     <span class="info-value session-id">{{ game_session.session_id }}</span>
                 </div>
                 
-                <div class="info-item">
-                    <span class="info-label">게임 옵션</span>
-                    <div class="info-options">
-                        {% if game_session.option1 and game_session.option2 %}
-                                                         <span class="option-badge percival">🛡️ 퍼시벌</span>
-                             <span class="option-badge morgana">🦹‍♀️ 모르가나</span>
-                         {% elif game_session.option1 %}
-                             <span class="option-badge percival">🛡️ 퍼시벌</span>
-                         {% elif game_session.option2 %}
-                             <span class="option-badge morgana">🦹‍♀️ 모르가나</span>
-                        {% else %}
-                            <span class="option-badge none">🎯 기본 게임</span>
-                        {% endif %}
-                    </div>
-                </div>
+
                 
                 <div class="info-item">
                     <span class="info-label">현재 플레이어</span>

@@ -1,3 +1,4 @@
+# 이메일 발송용 
 import dash
 from dash import html, dcc, Input, Output, State, ctx, ALL, MATCH
 import dash_bootstrap_components as dbc
@@ -12,9 +13,9 @@ parent_dir = os.path.dirname(current_file_path)
 grandparent_dir = os.path.dirname(parent_dir)
 sys.path.append(grandparent_dir)
 
-from ftn.generate_msg import distributor, generate_player_info
-from ftn.send_role_msg import send_role_msg
-from ftn.email_sender import EmailSender
+from ftn.email.generate_msg import distributor, generate_player_info
+from ftn.email.send_role_msg import send_role_msg
+from ftn.email.email_sender import EmailSender
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 es = EmailSender('./config/sender.config')

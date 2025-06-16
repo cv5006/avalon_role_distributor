@@ -1214,6 +1214,7 @@ input[type="checkbox"] {
     color: #333;
     line-height: 1.6;
     font-size: 0.95rem;
+    white-space: pre-line; /* 줄바꿈 강제 적용 */
 }
 
 /* 겸직 역할 구분 스타일 */
@@ -1910,4 +1911,10 @@ input[type="checkbox"] {
 .role-card.selected {
     background-color: #cde8ff;
     border-color: #2196f3;
+}
+
+/* 역할 메시지의 대상 플레이어 강조 */
+.target-players {
+    font-weight: bold;
+    color: #4a90e2;
 }
