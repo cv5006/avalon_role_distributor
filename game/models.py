@@ -4,32 +4,30 @@ from django.utils.safestring import mark_safe
 from django.contrib.auth.hashers import make_password
 import uuid
 
-import ftn.generate_msg as avalon_role
+from ftn.roles import RolePlayer, assign_by_role_packages
+from ftn.players import generate_player_messages
 
 
 class GameSession(models.Model):
     session_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     host_nickname = models.CharField(max_length=50, null=True, blank=True)
+    enable_dummy = models.BooleanField(default=False)
 
-    option1 = models.BooleanField(default=False)
-    option2 = models.BooleanField(default=False)
-    option3 = models.BooleanField(default=False)
+    role_groups  = models.JSONField()
     
     is_active = models.BooleanField(default=True)
     is_started = models.BooleanField(default=False)
 
-
     def distribute_roles(self):
-        players = [player.nickname for player in list(self.players.all())]
-        enable_persival = self.option1 == True
-        enable_morgana  = self.option2 == True
-        
-        if self.option3:
+        player_list = [player.nickname for player in list(self.players.all())]
+
+        # dummy option
+        if self.enable_dummy:
             NUM_TOTAL_PLAYERS = 5
-            dummies = [f'dummy_{i}' for i in range(NUM_TOTAL_PLAYERS-len(players))]
-            if len(players) < 5:
-                players += dummies
+            dummies = [f'dummy_{i}' for i in range(NUM_TOTAL_PLAYERS-len(player_list))]
+            if len(player_list) < 5:
+                player_list += dummies
             
             for i, dummy in enumerate(dummies):
                 Player.objects.create(
@@ -38,19 +36,32 @@ class GameSession(models.Model):
                     pin=make_password(f'{i}')
                 )
 
+        # role distribution
+        role_players = [RolePlayer(p) for p in player_list]
+        role_packages = [['loyal_servant'], ['merlin']] + self.role_groups
+        assigned_players = assign_by_role_packages(role_players, role_packages)
 
-        distrb_raw = avalon_role.distributor(players, enable_persival, enable_morgana)
-        distrb = avalon_role.distribution_post_process(distrb_raw)
-        for assignee, description in distrb.items():
-            try:
-                player = Player.objects.get(game_session=self, nickname=assignee)
-                player.role = description['role']
-                player.role_intro = description['intro']
-                player.role_detail = description['detail']
-                player.role_image = description['image']
-                player.save()
-            except Exception as e:
-                pass
+        # assign role messages
+        messages = generate_player_messages(assigned_players)
+        for player_name, info in messages.items():
+            print(f"\n{player_name}:")
+            print(f"  역할: {info['roles']}")
+            
+            for i, (message, image) in enumerate(zip(info['messages'], info['images'])):
+                print(f"  역할 {i+1}: {message['bold']}")
+                print(f"    설명: {message['desc']}")
+                print(f"    이미지: {image}")
+
+        # for assignee, description in distrb.items():
+        #     try:
+        #         player = Player.objects.get(game_session=self, nickname=assignee)
+        #         player.role = description['role']
+        #         player.role_intro = description['intro']
+        #         player.role_detail = description['detail']
+        #         player.role_image = description['image']
+        #         player.save()
+        #     except Exception as e:
+        #         pass
     
 
     def __str__(self):

@@ -1771,3 +1771,26 @@ input[type="checkbox"] {
 .new-game-btn:active {
     transform: translateY(0);
 }
+
+.role-list {
+  flex: 1;
+  padding: 10px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  min-height: 160px;
+  background-color: #f0f0f0;
+}
+
+.role-card {
+    padding: 10px;
+    margin: 5px 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.role-card.selected {
+    background-color: #cde8ff;
+    border-color: #2196f3;
+}

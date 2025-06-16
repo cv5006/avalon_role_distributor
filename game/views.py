@@ -11,13 +11,16 @@ from .models import GameSession, Player
 
 def home(request:HttpRequest):
     if request.method == 'POST':
-        op1 = request.POST.get('option1') == 'true'
-        op2 = request.POST.get('option2') == 'true'
-        op3 = request.POST.get('option3') == 'true'
+        enable_percival = request.POST.get('enable_percival') == 'true'
+        enable_dummy = request.POST.get('enable_dummy') == 'true'
+        
+        role_groups = json.loads(request.POST.get("active_roles", "[]"))
+        if enable_percival:
+            role_groups.append(['percival'])
+
         game_session = GameSession.objects.create(
-            option1=op1,
-            option2=op2,
-            option3=op3
+            role_groups=role_groups,
+            enable_dummy=enable_dummy,
         )
 
         game_session.is_active = True
@@ -154,9 +157,9 @@ def start_game(request:HttpRequest, session_id):
         return JsonResponse({'status': 'error', 'message': '호스트 정보를 찾을 수 없습니다.'}, status=404)
 
     # 플레이어 수 체크 (5명 미만이면 로비로 돌아가면서 메시지 표시)
-    # 단, 개발자 옵션(option3)이 활성화된 경우는 더미 플레이어가 추가되므로 체크하지 않음
+    # 단, 개발자 옵션(enable_dummy)이 활성화된 경우는 더미 플레이어가 추가되므로 체크하지 않음
     current_players = game_session.players.all()
-    if not game_session.option3 and len(current_players) < 5:
+    if not game_session.enable_dummy and len(current_players) < 5:
         query = urlencode({
             'nickname': nickname, 
             'pin': pin,

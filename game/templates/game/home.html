@@ -18,8 +18,8 @@
                 <h3 class="section-title">게임 옵션 선택</h3>
                 <div class="options-grid">
                     <div class="option-card">
-                        <input type="checkbox" id="option1" name="option1" value="true" class="option-checkbox">
-                        <label for="option1" class="option-label">
+                        <input type="checkbox" id="enable_percival" name="enable_percival" value="true" class="option-checkbox">
+                        <label for="enable_percival" class="option-label">
                             <div class="option-icon">🛡️</div>
                             <div class="option-content">
                                 <h4>퍼시벌 추가</h4>
@@ -28,17 +28,33 @@
                             <div class="option-toggle"></div>
                         </label>
                     </div>
+                </div>
+            </div>
+            <div class="role-selection-section">
+                <input type="hidden" name="active_roles" id="active-roles-data">
+                <input type="hidden" name="composite_roles" id="composite-roles-data">
 
-                    <div class="option-card">
-                        <input type="checkbox" id="option2" name="option2" value="true" class="option-checkbox">
-                        <label for="option2" class="option-label">
-                            <div class="option-icon">🦹‍♀️</div>
-                            <div class="option-content">
-                                <h4>모르가나 추가</h4>
-                                <p>교묘한 악의 마법사</p>
-                            </div>
-                            <div class="option-toggle"></div>
-                        </label>
+                <div class="role-dnd-container" style="display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%; max-width: 400px; margin: 0 auto;">
+                    <div class="role-list" id="inactive-cards" style="width: 100%; padding: 10px; border: 2px dashed #ccc; border-radius: 8px; min-height: 200px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                        <h4 style="grid-column: span 2;">비활성 악인</h4>
+                        <div class="role-card" data-role-id="assassin">암살자</div>
+                        <div class="role-card" data-role-id="morgana">모르가나</div>
+                        <div class="role-card" data-role-id="oberon">오베론</div>
+                        <div class="role-card" data-role-id="mordred">모드레드</div>
+                    </div>
+
+                    <div class="controls" style="display: flex; flex-direction: row; gap: 10px; justify-content: center;">
+                        <button type="button" id="to-active">▼</button>
+                        <button type="button" id="to-inactive">▲</button>
+                    </div>
+
+                    <div class="role-list" id="active-cards" style="width: 100%; padding: 10px; border: 2px dashed #ccc; border-radius: 8px; min-height: 200px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                        <h4 style="grid-column: span 2;">활성 악인</h4>
+                    </div>
+
+                    <div class="combine-controls" style="display: flex; flex-direction: row; gap: 10px; margin-top: 10px;">
+                        <button type="button" id="combine">겸직</button>
+                        <button type="button" id="split">겸직 해제</button>
                     </div>
                 </div>
             </div>
@@ -60,8 +76,8 @@
                     </summary>
                     <div class="dev-options-content">
                         <div class="dev-option">
-                            <input type="checkbox" id="option3" name="option3" value="true" class="dev-checkbox">
-                            <label for="option3" class="dev-label">
+                            <input type="checkbox" id="enable_dummy" name="enable_dummy" value="true" class="dev-checkbox">
+                            <label for="enable_dummy" class="dev-label">
                                 <span class="dev-option-icon">👥</span>
                                 <span class="dev-option-text">더미 유저 추가</span>
                             </label>
@@ -71,4 +87,99 @@
             </div>
         </form>
     </div>
+{% endblock %}
+
+{% block extra_body %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        function toggleSelection(card) {
+            card.classList.toggle("selected");
+            }
+
+            function moveSelected(sourceList, targetList) {
+            const selected = sourceList.querySelectorAll(".role-card.selected");
+            selected.forEach(card => {
+                card.classList.remove("selected");
+                targetList.appendChild(card);
+            });
+        }
+
+        function combineSelected(list) {
+            const selected = list.querySelectorAll(".role-card.selected");
+            if (selected.length !== 2) return;
+
+            const names = Array.from(selected).map(c => c.innerText);
+            const combinedName = names.join(" + ");
+            const ids = Array.from(selected).map(c => c.dataset.roleId);
+            const combinedID = ids.join("_");
+
+            const newCard = document.createElement("div");
+            newCard.className = "role-card";
+            newCard.textContent = combinedName;
+            newCard.dataset.roleId = combinedID;
+            newCard.dataset.combined = "true";
+
+            newCard.addEventListener("click", () => toggleSelection(newCard));
+
+            selected.forEach(c => c.remove());
+            list.appendChild(newCard);
+        }
+
+        function splitSelected(list) {
+            const selected = list.querySelectorAll(".role-card.selected");
+            selected.forEach(card => {
+                if (!card.dataset.combined) return;
+
+                const parts = card.innerText.split(" + ");
+                parts.forEach(name => {
+                const partCard = document.createElement("div");
+                partCard.className = "role-card";
+                partCard.textContent = name;
+                partCard.dataset.roleId = name.replace(/\s+/g, '_');
+                partCard.addEventListener("click", () => toggleSelection(partCard));
+                list.appendChild(partCard);
+                });
+                card.remove();
+            });
+        }
+
+        document.querySelectorAll(".role-card").forEach(card => {
+            card.addEventListener("click", () => toggleSelection(card));
+        });
+
+        document.getElementById("to-active").addEventListener("click", () => {
+            moveSelected(document.getElementById("inactive-cards"), document.getElementById("active-cards"));
+        });
+
+        document.getElementById("to-inactive").addEventListener("click", () => {
+            moveSelected(document.getElementById("active-cards"), document.getElementById("inactive-cards"));
+        });
+
+        document.getElementById("combine").addEventListener("click", () => {
+            combineSelected(document.getElementById("active-cards"));
+        });
+
+        document.getElementById("split").addEventListener("click", () => {
+            splitSelected(document.getElementById("active-cards"));
+        });
+    });
+
+    document.querySelector(".game-form").addEventListener("submit", () => {
+        const activeCards = document.querySelectorAll("#active-cards .role-card");
+        const roleGroups = [];
+
+        activeCards.forEach(card => {
+        const rawId = card.dataset.roleId;
+
+        if (card.dataset.combined === "true") {
+            const components = rawId.split('_');
+            roleGroups.push(components);
+        } else {
+            roleGroups.push([rawId]);
+        }
+        });
+
+        document.getElementById("active-roles-data").value = JSON.stringify(roleGroups);
+    });
+</script>
 {% endblock %}
