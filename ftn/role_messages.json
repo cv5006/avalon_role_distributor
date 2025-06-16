@@ -21,7 +21,7 @@
   },
   "loyal_servant": {
     "name": "충성스러운 신하",
-    "emoji": "🕊️",
+    "emoji": "🧝‍♂️",
     "bold": "[선인] 당신은 충성스러운 신하입니다.",
     "desc": "정의와 진실의 편에 서서,\n함께 협력해 악의 세력을 물리치세요!",
     "faction": "good",
@@ -51,7 +51,7 @@
   },
   "minion_of_mordred": {
     "name": "모드레드의 수하",
-    "emoji": "😈",
+    "emoji": "🐍",
     "bold": "[악인] 당신은 모드레드의 수하입니다.",
     "desc": "선인들을 속이고 작전을 펼쳐 아발론을 무너뜨리세요!\n당신의 동료 악인 😈: {target_players}",
     "faction": "evil",

@@ -1,5 +1,6 @@
 import os
 import json
+from django.utils.safestring import mark_safe
 
 # 전역 이미지 카운터들
 _good_counter = 1
@@ -51,12 +52,20 @@ def get_visible_players(player, all_players, role_data):
     for other_player in all_players:
         if other_player.name == player.name:
             continue
-            
+        
+        # 다른 플레이어의 모든 역할을 확인
+        can_see_player = False
+        cannot_see_player = False
+        
         for other_role in other_player.roles:
-            if other_role in can_see and other_role not in cannot_see:
-                if other_player not in visible_players:
-                    visible_players.append(other_player)
-                break
+            if other_role in can_see:
+                can_see_player = True
+            if other_role in cannot_see:
+                cannot_see_player = True
+        
+        # 볼 수 있는 역할이 있고, 볼 수 없는 역할이 없을 때만 추가
+        if can_see_player and not cannot_see_player:
+            visible_players.append(other_player)
     
     return visible_players
 
@@ -154,6 +163,9 @@ def generate_player_messages(assigned_players):
             # 볼 수 없는 악인 정보 추가 (target_players가 있는 역할에만)
             if "{target_players}" in role_info.get("desc", "") and invisible_message:
                 desc += invisible_message
+            
+            # 최종 desc에 mark_safe 적용
+            desc = mark_safe(desc)
             
             # CSS의 white-space: pre-line으로 줄바꿈 처리하므로 \n 그대로 유지
             # desc = desc.replace('\n', '<br>') # 주석 처리

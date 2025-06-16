@@ -195,8 +195,19 @@ def role(request, session_id):
     for p in game_session.players.all():
         if not p.roles or not p.faction:
             continue
-            
-        role_display = f"{role_data.get(p.primary_role, {}).get('emoji', '')} {role_data.get(p.primary_role, {}).get('name', '')}"
+        
+        # 다중 역할 처리
+        if len(p.roles) > 1:
+            # 여러 역할을 가진 경우 모든 역할을 표시
+            role_parts = []
+            for role in p.roles:
+                emoji = role_data.get(role, {}).get('emoji', '')
+                name = role_data.get(role, {}).get('name', role)
+                role_parts.append(f"{emoji} {name}")
+            role_display = " + ".join(role_parts)
+        else:
+            # 단일 역할인 경우 기존 방식
+            role_display = f"{role_data.get(p.primary_role, {}).get('emoji', '')} {role_data.get(p.primary_role, {}).get('name', '')}"
         
         if p.faction == 'good':
             good_comp[role_display] = good_comp.get(role_display, 0) + 1
