@@ -22,12 +22,12 @@
                     <span class="info-label">게임 옵션</span>
                     <div class="info-options">
                         {% if game_session.option1 and game_session.option2 %}
-                                                         <span class="option-badge percival">🛡️ 퍼시벌</span>
-                             <span class="option-badge morgana">🦹‍♀️ 모르가나</span>
+                                                         <span class="option-badge percival">{{ "percival"|role_emoji }} 퍼시벌</span>
+                             <span class="option-badge morgana">{{ "morgana"|role_emoji }} 모르가나</span>
                          {% elif game_session.option1 %}
-                             <span class="option-badge percival">🛡️ 퍼시벌</span>
+                             <span class="option-badge percival">{{ "percival"|role_emoji }} 퍼시벌</span>
                          {% elif game_session.option2 %}
-                             <span class="option-badge morgana">🦹‍♀️ 모르가나</span>
+                             <span class="option-badge morgana">{{ "morgana"|role_emoji }} 모르가나</span>
                         {% else %}
                             <span class="option-badge none">🎯 기본 게임</span>
                         {% endif %}
@@ -43,13 +43,13 @@
                     <span class="info-label">게임 구성</span>
                     <div class="composition-summary">
                         <div class="team-composition good-team">
-                            <span class="team-header">{{ "loyal_servant"|role_emoji }} 선인 {{ good_total }}명</span>
+                            <span class="team-header">🕊️ 선인 {{ good_total }}명</span>
                             <span class="team-details">
                                 ({% for role, count in good_composition.items %}{{ role }} {{ count }}명{% if not forloop.last %}, {% endif %}{% endfor %})
                             </span>
                         </div>
                         <div class="team-composition evil-team">
-                            <span class="team-header">{{ "minion_of_mordred"|role_emoji }} 악인 {{ evil_total }}명</span>
+                            <span class="team-header">😈 악인 {{ evil_total }}명</span>
                             <span class="team-details">
                                 ({% for role, count in evil_composition.items %}{{ role }} {{ count }}명{% if not forloop.last %}, {% endif %}{% endfor %})
                             </span>

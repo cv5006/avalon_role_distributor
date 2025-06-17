@@ -85,6 +85,84 @@
             </div>
         </div>
 
+        <!-- 게임 옵션 설정 카드 (호스트만 보임) -->
+        {% if player_nickname == game_session.host_nickname %}
+        <div class="game-options-card" style="background: rgba(255, 255, 255, 0.95); border-radius: 16px; padding: 1.5rem; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); margin-bottom: 1.5rem;">
+            <div class="options-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(0, 0, 0, 0.1);">
+                <div class="options-icon" style="font-size: 2rem; margin-right: 0.75rem; color: #667eea;">⚙️</div>
+                <h3 class="options-title" style="font-size: 1.3rem; font-weight: 600; margin: 0; color: #333; flex: 1;">게임 옵션 설정</h3>
+                <div class="options-note" style="font-size: 0.9rem; color: #667eea; background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%); padding: 0.5rem 1rem; border-radius: 25px; font-weight: 600; border: 1px solid rgba(102, 126, 234, 0.2);">플레이어 수: <span id="current-player-count">{{ players_in_session|length }}</span>명</div>
+            </div>
+            
+            <div class="options-content" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- 퍼시벌 옵션 -->
+                <div class="option-section" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 249, 250, 0.8) 100%); border-radius: 12px; padding: 1.3rem; border: 1px solid rgba(0, 0, 0, 0.05); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+                    <h4 class="option-section-title" style="font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; color: #333; display: flex; align-items: center; gap: 0.75rem;">🕊️ 활성 선인 선택</h4>
+                    <div class="option-item" style="display: flex; align-items: stretch; gap: 0;">
+                        <input type="checkbox" id="enable_percival" class="option-checkbox" style="display: none;">
+                        <label for="enable_percival" class="option-label-compact" style="display: flex; align-items: center; gap: 1rem; cursor: pointer; width: 100%; padding: 1rem; border-radius: 12px; border: 2px solid rgba(102, 126, 234, 0.3); background: rgba(255, 255, 255, 0.8); transition: all 0.3s ease;">
+                            <div class="option-icon-small" style="font-size: 1.8rem; filter: grayscale(60%); transition: all 0.3s ease;">🛡️</div>
+                            <div class="option-text" style="display: flex; flex-direction: column; gap: 0.3rem; flex: 1;">
+                                <span class="option-name" style="font-size: 1.05rem; font-weight: 600; color: #333; transition: color 0.3s ease;">퍼시벌 추가</span>
+                                <span class="option-desc" style="font-size: 0.9rem; color: #666; line-height: 1.4; transition: color 0.3s ease;">멀린을 지키는 충직한 수호자</span>
+                            </div>
+                            <div class="toggle-switch" style="width: 50px; height: 28px; background: #ddd; border-radius: 14px; position: relative; transition: all 0.3s ease;">
+                                <div class="toggle-slider" style="position: absolute; width: 24px; height: 24px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);"></div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 활성 악인 선택 -->
+                <div class="option-section" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 249, 250, 0.8) 100%); border-radius: 12px; padding: 1.3rem; border: 1px solid rgba(0, 0, 0, 0.05); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+                    <h4 class="option-section-title" style="font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; color: #333; display: flex; align-items: center; gap: 0.75rem;">😈 활성 악인 선택</h4>
+                    <div class="role-selection-compact" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.2rem;">
+                        <!-- 비활성 영역 -->
+                        <div class="role-list-compact" id="inactive-cards" style="background: linear-gradient(135deg, rgba(150, 150, 150, 0.1) 0%, rgba(200, 200, 200, 0.1) 100%); border-radius: 16px; padding: 1.2rem; border: 2px dashed rgba(150, 150, 150, 0.4); min-height: 120px;">
+                            <div class="role-list-title" style="font-size: 0.95rem; font-weight: 700; color: #666; margin-bottom: 0.8rem; text-align: center; text-transform: uppercase; letter-spacing: 1px;">비활성 악인</div>
+                            <div class="role-cards-container" style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 0.8rem; min-height: 120px; place-items: center; max-width: 280px; margin: 0 auto;">
+                                <div class="role-card-small inactive-role" data-role-id="morgana" style="background: linear-gradient(135deg, #999 0%, #777 100%); color: white; padding: 0.6rem 1rem; border-radius: 25px; cursor: pointer; font-size: 0.9rem; font-weight: 600; text-align: center; box-shadow: 0 2px 8px rgba(150, 150, 150, 0.3); min-width: 90px; transition: all 0.3s ease;">모르가나</div>
+                                <div class="role-card-small inactive-role" data-role-id="oberon" style="background: linear-gradient(135deg, #999 0%, #777 100%); color: white; padding: 0.6rem 1rem; border-radius: 25px; cursor: pointer; font-size: 0.9rem; font-weight: 600; text-align: center; box-shadow: 0 2px 8px rgba(150, 150, 150, 0.3); min-width: 90px; transition: all 0.3s ease;">오베론</div>
+                                <div class="role-card-small inactive-role" data-role-id="mordred" style="background: linear-gradient(135deg, #999 0%, #777 100%); color: white; padding: 0.6rem 1rem; border-radius: 25px; cursor: pointer; font-size: 0.9rem; font-weight: 600; text-align: center; box-shadow: 0 2px 8px rgba(150, 150, 150, 0.3); min-width: 90px; transition: all 0.3s ease;">모드레드</div>
+                            </div>
+                        </div>
+
+                        <!-- 컨트롤 버튼 -->
+                        <div class="role-controls" style="display: flex; justify-content: center; gap: 1rem; align-items: center;">
+                            <button type="button" id="to-active" class="role-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 50%; width: 45px; height: 45px; color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); transition: all 0.3s ease;">▼</button>
+                            <button type="button" id="to-inactive" class="role-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 50%; width: 45px; height: 45px; color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); transition: all 0.3s ease;">▲</button>
+                        </div>
+
+                        <!-- 활성 영역 -->
+                        <div class="role-list-compact" id="active-cards" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border-radius: 16px; padding: 1.2rem; border: 2px dashed rgba(102, 126, 234, 0.4); min-height: 120px;">
+                            <div class="role-list-title" style="font-size: 0.95rem; font-weight: 700; color: #667eea; margin-bottom: 0.8rem; text-align: center; text-transform: uppercase; letter-spacing: 1px;">활성 악인</div>
+                            
+                            <!-- 일반 카드 영역 (2x2 그리드) -->
+                            <div class="role-cards-container normal-cards" style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 0.8rem; min-height: 80px; place-items: center; max-width: 280px; margin: 0 auto 1rem auto;">
+                                <div class="role-card-small active-role" data-role-id="assassin" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.6rem 1rem; border-radius: 25px; cursor: pointer; font-size: 0.9rem; font-weight: 600; text-align: center; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); min-width: 90px; transition: all 0.3s ease;">암살자</div>
+                            </div>
+                            
+                            <!-- 겸직 카드 영역 (자동 중앙 배치) -->
+                            <div class="combined-cards-container" style="display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; align-items: center; min-height: 40px; max-width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="combine-controls-compact" style="display: flex; gap: 1rem; justify-content: center;">
+                        <button type="button" id="combine" class="combine-btn" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%); border: 2px solid #667eea; border-radius: 30px; padding: 0.7rem 1.5rem; color: #667eea; font-size: 0.95rem; font-weight: 600; cursor: pointer; min-width: 90px;">겸직</button>
+                        <button type="button" id="split" class="combine-btn" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%); border: 2px solid #667eea; border-radius: 30px; padding: 0.7rem 1.5rem; color: #667eea; font-size: 0.95rem; font-weight: 600; cursor: pointer; min-width: 90px;">분리</button>
+                    </div>
+                </div>
+
+                <!-- 경고 메시지 -->
+                <div id="validation-message" class="validation-message-compact" style="display: none; background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%); border: 2px solid #ffeaa7; color: #856404; padding: 1.2rem; border-radius: 16px; align-items: center; gap: 1rem; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);">
+                    <div class="message-icon" style="font-size: 1.5rem; flex-shrink: 0;">⚠️</div>
+                    <div class="message-text" style="flex: 1; font-weight: 600; margin: 0; line-height: 1.4;"></div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- 게임 시작 카드 (호스트만 보임) -->
         {% if player_nickname == game_session.host_nickname %}
         <div class="host-actions-card">
@@ -96,11 +174,13 @@
             
             <div class="host-content">
                 <p class="start-description">모든 플레이어가 준비되면 게임을 시작하세요!</p>
-                <form method="post" action="{% url 'start_game' game_session.session_id %}">
+                <form method="post" action="{% url 'start_game' game_session.session_id %}" id="start-game-form">
                     {% csrf_token %}
                     <input type="hidden" name="nickname" value="{{ player_nickname }}">
                     <input type="hidden" name="pin" value="{{ player_pin }}">
-                    <button type="submit" class="start-game-btn" onclick="return confirm('정말로 게임을 시작하시겠습니까?');">
+                    <input type="hidden" name="active_roles" id="active-roles-data">
+                    <input type="hidden" name="enable_percival" id="percival-data">
+                    <button type="submit" class="start-game-btn" id="start-game-btn">
                         <span class="btn-icon">🚀</span>
                         <span class="btn-text">게임 시작</span>
                     </button>
@@ -125,7 +205,12 @@
 {% block extra_body %}
     <!-- 게임 상태 업데이트 -->
     <meta name="csrf-token" content="{{ csrf_token }}">
+    {{ game_session.enable_dummy|json_script:"enable-dummy-data" }}
     <script>
+    // Django 변수를 JavaScript로 전달
+    const enableDummyData = JSON.parse(document.getElementById('enable-dummy-data').textContent);
+    window.enableDummy = enableDummyData;
+    
     let lastHash = null;
     const playerNickname = "{{ player_nickname }}";
     const playerPin = "{{ player_pin }}";
@@ -190,7 +275,7 @@
                         `;
                     }
                     
-                    const hostBadge = isHost ? '👑' : '';
+                    const hostBadge = isHost ? ' 👑' : '';
                     
                     playerItem.innerHTML = `
                         <div class="player-info">
@@ -206,11 +291,571 @@
                 });
                 
                 lastHash = data.hash;
+                
+                // 플레이어 수 업데이트 (옵션 카드용)
+                const playerCountSpan = document.getElementById("current-player-count");
+                if (playerCountSpan) {
+                    const currentCount = data.players.length;
+                    if (window.enableDummy && currentCount < 5) {
+                        playerCountSpan.textContent = `${currentCount} (더미 포함 5)`;
+                    } else {
+                        playerCountSpan.textContent = currentCount;
+                    }
+                }
             })
             .catch(err => console.error("플레이어 목록 갱신 실패:", err));
     }
 
+    // 초기 플레이어 수 표시 업데이트
+    const initialPlayerCountSpan = document.getElementById("current-player-count");
+    if (initialPlayerCountSpan && window.enableDummy) {
+        const initialCount = parseInt(initialPlayerCountSpan.textContent);
+        if (initialCount < 5) {
+            initialPlayerCountSpan.textContent = `${initialCount} (더미 포함 5)`;
+        }
+    }
+
     setInterval(updatePlayerList, 1000); // ms
+    </script>
+
+    <!-- 게임 옵션 설정 로직 -->
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // 호스트가 아니면 옵션 로직 실행하지 않음
+        if ("{{ player_nickname }}" !== "{{ game_session.host_nickname }}") {
+            return;
+        }
+
+        // 금지된 조합 정보
+        const forbiddenCombinations = [
+            ['mordred', 'oberon'],
+            ['oberon', 'mordred'],
+            ['morgana', 'oberon'],
+            ['oberon', 'morgana']
+        ];
+        
+        function showValidationMessage(message) {
+            const messageDiv = document.getElementById("validation-message");
+            const messageText = messageDiv.querySelector(".message-text");
+            messageText.textContent = message;
+            messageDiv.style.display = "flex";
+            messageDiv.style.alignItems = "center";
+            messageDiv.style.gap = "10px";
+        }
+        
+        function hideValidationMessage() {
+            const messageDiv = document.getElementById("validation-message");
+            if (messageDiv) {
+                messageDiv.style.display = "none";
+            }
+        }
+        
+        // 플레이어 수에 따른 악인 수 계산 함수
+        function getMaxEvilRoles(playerCount) {
+            if (playerCount < 5 || playerCount > 10) {
+                return 0;
+            }
+            if (playerCount <= 6) {
+                return 2;
+            } else if (playerCount <= 9) {
+                return 3;
+            } else {
+                return 4;
+            }
+        }
+
+        function validateConfiguration() {
+            const normalCards = document.querySelectorAll("#active-cards .normal-cards .role-card-small");
+            const combinedCards = document.querySelectorAll("#active-cards .combined-cards-container .role-card-small");
+            const activeCards = [...normalCards, ...combinedCards];
+            const roleGroups = [];
+            let hasAssassin = false;
+
+            // 역할 그룹 구성 및 암살자 체크
+            activeCards.forEach(card => {
+                const rawId = card.dataset.roleId;
+                
+                if (card.dataset.combined === "true") {
+                    const components = rawId.split('_');
+                    roleGroups.push(components);
+                    if (components.includes('assassin')) hasAssassin = true;
+                } else {
+                    roleGroups.push([rawId]);
+                    if (rawId === 'assassin') hasAssassin = true;
+                }
+            });
+
+            // 현재 플레이어 수 가져오기
+            const currentPlayerCountSpan = document.getElementById("current-player-count");
+            const currentPlayerCount = currentPlayerCountSpan ? parseInt(currentPlayerCountSpan.textContent) : 0;
+            
+            // 더미 플레이어 포함한 총 플레이어 수 계산
+            let totalPlayerCount = currentPlayerCount;
+            if (window.enableDummy && currentPlayerCount < 5) {
+                totalPlayerCount = 5; // 더미 플레이어로 5명까지 채움
+            }
+            
+            const maxEvilRoles = getMaxEvilRoles(totalPlayerCount);
+            const activeEvilCount = roleGroups.length; // 겸직은 1개로 계산됨
+
+            // 1. 플레이어 수 체크 (더미 플레이어 활성화 시 건너뛰기)
+            if (!window.enableDummy && currentPlayerCount < 5) {
+                showValidationMessage("👥 게임을 시작하려면 최소 5명의 플레이어가 필요합니다!");
+                return false;
+            }
+
+                         // 2. 악인 수 체크
+             if (activeEvilCount > maxEvilRoles) {
+                 const playerCountText = window.enableDummy && currentPlayerCount < 5 
+                     ? `${totalPlayerCount}명 (더미 포함)` 
+                     : `${currentPlayerCount}명`;
+                 showValidationMessage(`⚖️ ${playerCountText}일 때 악인은 최대 ${maxEvilRoles}명이어야 합니다! 현재 활성 악인: ${activeEvilCount}명 (겸직은 1명으로 계산)`);
+                 return false;
+             }
+
+            // 3. 암살자 필수 체크
+            if (!hasAssassin) {
+                showValidationMessage("⚔️ 암살자는 필수 역할입니다! 활성 악인에 포함시켜주세요.");
+                return false;
+            }
+
+            // 4. 3개 이상 겸직 체크
+            for (const group of roleGroups) {
+                if (group.length >= 3) {
+                    showValidationMessage("🚫 3개 이상의 역할은 겸직할 수 없습니다!");
+                    return false;
+                }
+            }
+
+            // 5. 금지된 조합 체크
+            for (const group of roleGroups) {
+                if (group.length === 2) {
+                    const [role1, role2] = group;
+                    for (const forbidden of forbiddenCombinations) {
+                        if ((forbidden[0] === role1 && forbidden[1] === role2) ||
+                            (forbidden[0] === role2 && forbidden[1] === role1)) {
+                            showValidationMessage(`🚫 ${role1}과(와) ${role2}는 겸직할 수 없습니다!`);
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            hideValidationMessage();
+            return true;
+        }
+
+        function toggleSelection(card) {
+            card.classList.toggle("selected");
+            
+            // 선택 시각 효과 업데이트
+            if (card.classList.contains("selected")) {
+                card.style.background = "linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%)";
+                card.style.transform = "scale(1.05)";
+                card.style.boxShadow = "0 6px 20px rgba(255, 107, 107, 0.5)";
+                card.style.border = "2px solid #ff6b6b";
+            } else {
+                // 원래 스타일로 복원 (활성/비활성에 따라)
+                if (card.closest("#active-cards")) {
+                    if (card.dataset.combined === "true") {
+                        // 겸직 카드 스타일
+                        card.style.background = "linear-gradient(135deg, #764ba2 0%, #667eea 100%)";
+                        card.style.boxShadow = "0 4px 12px rgba(118, 75, 162, 0.4)";
+                        card.style.overflow = "visible";
+                        card.style.paddingTop = "0.8rem";
+                    } else {
+                        // 일반 카드 스타일
+                        card.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+                        card.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.3)";
+                    }
+                } else {
+                    if (card.dataset.combined === "true") {
+                        // 겸직 카드 스타일
+                        card.style.background = "linear-gradient(135deg, #666 0%, #444 100%)";
+                        card.style.boxShadow = "0 2px 8px rgba(100, 100, 100, 0.4)";
+                        card.style.overflow = "visible";
+                        card.style.paddingTop = "0.8rem";
+                    } else {
+                        // 일반 카드 스타일
+                        card.style.background = "linear-gradient(135deg, #999 0%, #777 100%)";
+                        card.style.boxShadow = "0 2px 8px rgba(150, 150, 150, 0.3)";
+                    }
+                }
+                card.style.transform = "scale(1)";
+                card.style.border = "2px solid transparent";
+            }
+            
+            setTimeout(validateConfiguration, 100);
+        }
+
+        function moveSelected(sourceList, targetList) {
+            const selected = sourceList.querySelectorAll(".role-card-small.selected");
+            selected.forEach(card => {
+                card.classList.remove("selected");
+                // 이동 시 스타일 업데이트
+                if (targetList.id === "active-cards") {
+                    if (card.dataset.combined === "true") {
+                        // 겸직 카드 스타일
+                        card.style.background = "linear-gradient(135deg, #764ba2 0%, #667eea 100%)";
+                        card.style.boxShadow = "0 4px 12px rgba(118, 75, 162, 0.4)";
+                        card.style.overflow = "visible";
+                        card.style.paddingTop = "0.8rem";
+                    } else {
+                        // 일반 카드 스타일
+                        card.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+                        card.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.3)";
+                    }
+                    card.className = "role-card-small active-role";
+                } else {
+                    if (card.dataset.combined === "true") {
+                        // 겸직 카드 스타일
+                        card.style.background = "linear-gradient(135deg, #666 0%, #444 100%)";
+                        card.style.boxShadow = "0 2px 8px rgba(100, 100, 100, 0.4)";
+                        card.style.overflow = "visible";
+                        card.style.paddingTop = "0.8rem";
+                    } else {
+                        // 일반 카드 스타일
+                        card.style.background = "linear-gradient(135deg, #999 0%, #777 100%)";
+                        card.style.boxShadow = "0 2px 8px rgba(150, 150, 150, 0.3)";
+                    }
+                    card.className = "role-card-small inactive-role";
+                }
+                card.style.transform = "scale(1)";
+                card.style.border = "2px solid transparent";
+                
+                // 카드 타입에 따라 적절한 컨테이너에 배치
+                if (targetList.id === "active-cards") {
+                    if (card.dataset.combined === "true") {
+                        targetList.querySelector('.combined-cards-container').appendChild(card);
+                    } else {
+                        targetList.querySelector('.normal-cards').appendChild(card);
+                    }
+                } else {
+                    targetList.querySelector('.role-cards-container').appendChild(card);
+                }
+            });
+            validateConfiguration();
+        }
+
+        function combineSelected(list) {
+            const selected = list.querySelectorAll(".role-card-small.selected");
+            if (selected.length !== 2) {
+                showValidationMessage("🔗 겸직하려면 정확히 2개의 역할을 선택해주세요!");
+                return;
+            }
+
+            const names = Array.from(selected).map(c => c.innerText);
+            const ids = Array.from(selected).map(c => c.dataset.roleId);
+            
+            // 겸직 전 미리 검증
+            for (const forbidden of forbiddenCombinations) {
+                if ((forbidden[0] === ids[0] && forbidden[1] === ids[1]) ||
+                    (forbidden[0] === ids[1] && forbidden[1] === ids[0])) {
+                    showValidationMessage(`🚫 ${names[0]}과(와) ${names[1]}는 겸직할 수 없습니다!`);
+                    return;
+                }
+            }
+
+            const combinedName = names.join(" + ");
+            const combinedID = ids.join("_");
+
+            const newCard = document.createElement("div");
+            newCard.className = "role-card-small";
+            newCard.dataset.roleId = combinedID;
+            newCard.dataset.combined = "true";
+
+            // 겸직 카드 내용 구성 (번개 아이콘 포함)
+            newCard.innerHTML = `
+                <span class="lightning-icon" style="position: absolute; top: -2px; right: -2px; font-size: 14px; z-index: 10;">⚡</span>
+                <span class="card-text">${combinedName}</span>
+            `;
+
+            // 겸직 카드 전용 스타일 적용
+            if (list.id === "active-cards") {
+                newCard.style.cssText = `
+                    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+                    color: white;
+                    padding: 0.6rem 1rem;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    text-align: center;
+                    box-shadow: 0 4px 12px rgba(118, 75, 162, 0.4);
+                    min-width: 120px;
+                    transition: all 0.3s ease;
+                    position: relative;
+                    border: 2px solid rgba(255, 255, 255, 0.2);
+                    overflow: visible;
+                    padding-top: 0.8rem;
+                `;
+            } else {
+                newCard.style.cssText = `
+                    background: linear-gradient(135deg, #666 0%, #444 100%);
+                    color: white;
+                    padding: 0.6rem 1rem;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    text-align: center;
+                    box-shadow: 0 2px 8px rgba(100, 100, 100, 0.4);
+                    min-width: 120px;
+                    transition: all 0.3s ease;
+                    position: relative;
+                    border: 2px solid rgba(255, 255, 255, 0.1);
+                    overflow: visible;
+                    padding-top: 0.8rem;
+                `;
+            }
+
+            newCard.addEventListener("click", () => toggleSelection(newCard));
+
+            selected.forEach(c => c.remove());
+            
+            // 겸직 카드는 combined-cards-container에 추가
+            if (list.id === "active-cards") {
+                list.querySelector('.combined-cards-container').appendChild(newCard);
+            } else {
+                list.querySelector('.role-cards-container').appendChild(newCard);
+            }
+            
+            validateConfiguration();
+        }
+
+        function splitSelected(list) {
+            const selected = list.querySelectorAll(".role-card-small.selected");
+            selected.forEach(card => {
+                if (!card.dataset.combined) return;
+
+                // 번개 아이콘 제외하고 텍스트만 가져오기
+                const cardText = card.querySelector('.card-text');
+                const parts = cardText ? cardText.textContent.split(" + ") : card.innerText.split(" + ");
+                const ids = card.dataset.roleId.split("_");
+                
+                parts.forEach((name, index) => {
+                    const partCard = document.createElement("div");
+                    partCard.className = "role-card-small";
+                    partCard.textContent = name;
+                    partCard.dataset.roleId = ids[index] || name.replace(/\s+/g, '_');
+                    
+                    // 분리된 카드 스타일 적용 (일반 카드 스타일, 번개 아이콘 없음)
+                    if (list.id === "active-cards") {
+                        partCard.style.cssText = `
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            padding: 0.6rem 1rem;
+                            border-radius: 25px;
+                            cursor: pointer;
+                            font-size: 0.9rem;
+                            font-weight: 600;
+                            text-align: center;
+                            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+                            min-width: 90px;
+                            transition: all 0.3s ease;
+                            position: relative;
+                            border: 2px solid transparent;
+                        `;
+                        partCard.className += " active-role";
+                    } else {
+                        partCard.style.cssText = `
+                            background: linear-gradient(135deg, #999 0%, #777 100%);
+                            color: white;
+                            padding: 0.6rem 1rem;
+                            border-radius: 25px;
+                            cursor: pointer;
+                            font-size: 0.9rem;
+                            font-weight: 600;
+                            text-align: center;
+                            box-shadow: 0 2px 8px rgba(150, 150, 150, 0.3);
+                            min-width: 90px;
+                            transition: all 0.3s ease;
+                            position: relative;
+                            border: 2px solid transparent;
+                        `;
+                        partCard.className += " inactive-role";
+                    }
+                    
+                    partCard.addEventListener("click", () => toggleSelection(partCard));
+                    
+                    // 분리된 카드는 일반 카드 영역에 추가
+                    if (list.id === "active-cards") {
+                        list.querySelector('.normal-cards').appendChild(partCard);
+                    } else {
+                        list.querySelector('.role-cards-container').appendChild(partCard);
+                    }
+                });
+                card.remove();
+            });
+            
+            validateConfiguration();
+        }
+
+        // 역할 카드 클릭 이벤트
+        document.querySelectorAll(".role-card-small").forEach(card => {
+            card.addEventListener("click", () => toggleSelection(card));
+        });
+
+        // 이동 버튼 이벤트
+        document.getElementById("to-active").addEventListener("click", () => {
+            moveSelected(document.getElementById("inactive-cards"), document.getElementById("active-cards"));
+        });
+
+        document.getElementById("to-inactive").addEventListener("click", () => {
+            moveSelected(document.getElementById("active-cards"), document.getElementById("inactive-cards"));
+        });
+
+        // 겸직 버튼 이벤트
+        document.getElementById("combine").addEventListener("click", () => {
+            combineSelected(document.getElementById("active-cards"));
+        });
+
+        document.getElementById("split").addEventListener("click", () => {
+            splitSelected(document.getElementById("active-cards"));
+        });
+
+        // 폼 제출 시 데이터 설정
+        document.getElementById("start-game-form").addEventListener("submit", (e) => {
+            // 게임 시작 전 최종 검증
+            if (!validateConfiguration()) {
+                e.preventDefault();
+                return false;
+            }
+
+            // 활성 역할 데이터 설정
+            const normalCards = document.querySelectorAll("#active-cards .normal-cards .role-card-small");
+            const combinedCards = document.querySelectorAll("#active-cards .combined-cards-container .role-card-small");
+            const activeCards = [...normalCards, ...combinedCards];
+            const roleGroups = [];
+
+            activeCards.forEach(card => {
+                const rawId = card.dataset.roleId;
+
+                if (card.dataset.combined === "true") {
+                    const components = rawId.split('_');
+                    roleGroups.push(components);
+                } else {
+                    roleGroups.push([rawId]);
+                }
+            });
+
+            // 최종 검증: 플레이어 수와 악인 수 재확인
+            const currentPlayerCountSpan = document.getElementById("current-player-count");
+            const currentPlayerCount = currentPlayerCountSpan ? parseInt(currentPlayerCountSpan.textContent) : 0;
+            
+            // 더미 플레이어 포함한 총 플레이어 수 계산
+            let totalPlayerCount = currentPlayerCount;
+            if (window.enableDummy && currentPlayerCount < 5) {
+                totalPlayerCount = 5; // 더미 플레이어로 5명까지 채움
+            }
+            
+            const maxEvilRoles = getMaxEvilRoles(totalPlayerCount);
+            const activeEvilCount = roleGroups.length;
+
+            if (!window.enableDummy && currentPlayerCount < 5) {
+                showValidationMessage("👥 게임을 시작하려면 최소 5명의 플레이어가 필요합니다!");
+                e.preventDefault();
+                return false;
+            }
+
+            if (activeEvilCount > maxEvilRoles) {
+                const playerCountText = window.enableDummy && currentPlayerCount < 5 
+                    ? `${totalPlayerCount}명 (더미 포함)` 
+                    : `${currentPlayerCount}명`;
+                showValidationMessage(`⚖️ ${playerCountText}일 때 악인은 최대 ${maxEvilRoles}명이어야 합니다! 현재 활성 악인: ${activeEvilCount}명 (겸직은 1명으로 계산)`);
+                e.preventDefault();
+                return false;
+            }
+
+            document.getElementById("active-roles-data").value = JSON.stringify(roleGroups);
+
+            // 퍼시벌 옵션 설정
+            const percivalChecked = document.getElementById("enable_percival").checked;
+            document.getElementById("percival-data").value = percivalChecked ? "true" : "false";
+
+            // 최종 확인 메시지 - 구체적인 역할 나열
+            const playerInfoText = window.enableDummy && currentPlayerCount < 5 
+                ? `플레이어: ${currentPlayerCount}명 + 더미 ${5 - currentPlayerCount}명 = 총 ${totalPlayerCount}명`
+                : `플레이어: ${currentPlayerCount}명`;
+            
+            // 선택된 특수 역할들 수집
+            const evilRoles = [];
+            const goodRoles = ["멀린"];
+            
+            roleGroups.forEach(group => {
+                if (group.length === 1) {
+                    // 단일 역할
+                    const roleName = group[0] === 'assassin' ? '암살자' : 
+                                   group[0] === 'mordred' ? '모드레드' :
+                                   group[0] === 'morgana' ? '모르가나' :
+                                   group[0] === 'oberon' ? '오베론' : group[0];
+                    evilRoles.push(roleName);
+                } else {
+                    // 겸직 역할
+                    const combinedNames = group.map(role => 
+                        role === 'assassin' ? '암살자' : 
+                        role === 'mordred' ? '모드레드' :
+                        role === 'morgana' ? '모르가나' :
+                        role === 'oberon' ? '오베론' : role
+                    );
+                    evilRoles.push(combinedNames.join(' + '));
+                }
+            });
+            
+            if (percivalChecked) {
+                goodRoles.push("퍼시벌");
+            }
+            
+            const evilText = evilRoles.length > 0 ? `특수 악인: ${evilRoles.join(', ')}` : "특수 악인: 없음";
+            const goodText = `특수 선인: ${goodRoles.join(', ')}`;
+            
+            if (!confirm(`게임을 시작하시겠습니까?\n\n${playerInfoText}\n${evilText}\n${goodText}`)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // 퍼시벌 토글 처리
+        const percivalCheckbox = document.getElementById("enable_percival");
+        const percivalLabel = document.querySelector('label[for="enable_percival"]');
+        const percivalIcon = percivalLabel.querySelector('.option-icon-small');
+        const percivalToggle = percivalLabel.querySelector('.toggle-switch');
+        const percivalSlider = percivalLabel.querySelector('.toggle-slider');
+        const percivalName = percivalLabel.querySelector('.option-name');
+        const percivalDesc = percivalLabel.querySelector('.option-desc');
+
+        function updatePercivalToggle() {
+            if (percivalCheckbox.checked) {
+                // 활성화 상태
+                percivalLabel.style.background = "linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)";
+                percivalLabel.style.borderColor = "#667eea";
+                percivalIcon.style.filter = "none";
+                percivalIcon.style.transform = "scale(1.2)";
+                percivalName.style.color = "#667eea";
+                percivalDesc.style.color = "#555";
+                percivalToggle.style.background = "rgba(102, 126, 234, 0.3)";
+                percivalSlider.style.transform = "translateX(22px)";
+            } else {
+                // 비활성화 상태
+                percivalLabel.style.background = "rgba(255, 255, 255, 0.8)";
+                percivalLabel.style.borderColor = "rgba(102, 126, 234, 0.3)";
+                percivalIcon.style.filter = "grayscale(60%)";
+                percivalIcon.style.transform = "scale(1)";
+                percivalName.style.color = "#333";
+                percivalDesc.style.color = "#666";
+                percivalToggle.style.background = "#ddd";
+                percivalSlider.style.transform = "translateX(0)";
+            }
+        }
+
+        percivalCheckbox.addEventListener('change', updatePercivalToggle);
+        
+        // 초기 상태 설정
+        updatePercivalToggle();
+
+        // 초기 검증 실행
+        validateConfiguration();
+    });
     </script>
 
     <!-- 링크 복사 -->

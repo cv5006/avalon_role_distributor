@@ -58,12 +58,9 @@ def get_player_or_redirect(request, game_session, redirect_to='join'):
 # 간소화된 뷰 함수들
 def home(request):
     if request.method == 'POST':
-        role_groups = json.loads(request.POST.get("active_roles", "[]"))
-        if request.POST.get('enable_percival') == 'true':
-            role_groups.append(['percival'])
-
+        # 기본 세션 생성 (암살자만 포함)
         game_session = GameSession.objects.create(
-            role_groups=role_groups,
+            role_groups=[['assassin']],
             enable_dummy=request.POST.get('enable_dummy') == 'true'
         )
         return redirect('join', session_id=game_session.session_id)
@@ -167,6 +164,13 @@ def start_game(request, session_id):
         query = urlencode({'nickname': nickname, 'pin': pin, 'error_message': '5명 이상이어야 게임을 시작할 수 있습니다!'})
         return HttpResponseRedirect(f"{reverse('lobby', args=[session_id])}?{query}")
 
+    # 로비에서 설정한 옵션 적용
+    role_groups = json.loads(request.POST.get("active_roles", "[['assassin']]"))
+    if request.POST.get('enable_percival') == 'true':
+        role_groups.append(['percival'])
+
+    # 게임 세션에 역할 구성 업데이트
+    game_session.role_groups = role_groups
     game_session.distribute_roles()
     game_session.is_started = True
     game_session.save()

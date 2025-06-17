@@ -39,13 +39,18 @@ def get_role_image(role_name):
         return f'/media/bad_guy_{img_num}.png'
 
 def get_visible_players(player, all_players, role_data):
-    """플레이어가 볼 수 있는 다른 플레이어들 반환"""
+    """플레이어가 볼 수 있는 다른 플레이어들 반환 (겸직 고려)"""
     if not player.roles:
         return []
     
-    primary_role = player.roles[0]
-    can_see = role_data.get(primary_role, {}).get('can_see', [])
-    cannot_see = role_data.get(primary_role, {}).get('cannot_see', [])
+    # 겸직 시 모든 역할의 can_see와 cannot_see 조합
+    combined_can_see = set()
+    combined_cannot_see = set()
+    
+    for role in player.roles:
+        role_info = role_data.get(role, {})
+        combined_can_see.update(role_info.get('can_see', []))
+        combined_cannot_see.update(role_info.get('cannot_see', []))
     
     visible_players = []
     
@@ -58,24 +63,28 @@ def get_visible_players(player, all_players, role_data):
         cannot_see_player = False
         
         for other_role in other_player.roles:
-            if other_role in can_see:
+            if other_role in combined_can_see:
                 can_see_player = True
-            if other_role in cannot_see:
+            if other_role in combined_cannot_see:
                 cannot_see_player = True
         
         # 볼 수 있는 역할이 있고, 볼 수 없는 역할이 없을 때만 추가
+        # 단, cannot_see가 우선순위를 가짐 (오베론 특성 반영)
         if can_see_player and not cannot_see_player:
             visible_players.append(other_player)
     
     return visible_players
 
 def get_invisible_evil_roles_for_player(player, all_players, role_data):
-    """특정 플레이어가 볼 수 없는 악인 역할들 반환"""
+    """특정 플레이어가 볼 수 없는 악인 역할들 반환 (겸직 고려)"""
     if not player.roles:
-        return []
+        return [], []
     
-    primary_role = player.roles[0]
-    cannot_see = role_data.get(primary_role, {}).get('cannot_see', [])
+    # 겸직 시 모든 역할의 cannot_see 조합
+    combined_cannot_see = set()
+    for role in player.roles:
+        role_info = role_data.get(role, {})
+        combined_cannot_see.update(role_info.get('cannot_see', []))
     
     # 게임에 실제로 있으면서 이 플레이어가 볼 수 없는 악인들
     all_evil_roles_in_game = set()
@@ -84,32 +93,42 @@ def get_invisible_evil_roles_for_player(player, all_players, role_data):
             if role_data.get(role, {}).get('faction') == 'evil':
                 all_evil_roles_in_game.add(role)
     
-    # 볼 수 없는 악인들 중 실제 게임에 있는 것들
-    invisible_roles = []
-    role_name_map = {
-        'oberon': '오베론',
-        'mordred': '모드레드',
-        'morgana': '모르가나', 
-        'assassin': '암살자',
-        'minion_of_mordred': '모드레드의 수하'
-    }
+    # 현재 플레이어의 역할들 (악인만)
+    player_evil_roles = set()
+    for role in player.roles:
+        if role_data.get(role, {}).get('faction') == 'evil':
+            player_evil_roles.add(role)
     
-    for role in cannot_see:
+    # 볼 수 없는 악인들을 두 그룹으로 분리
+    invisible_roles = []  # 다른 플레이어가 가진 볼 수 없는 역할
+    self_invisible_roles = []  # 자기 자신이 겸직하고 있는 볼 수 없는 역할
+    
+    for role in combined_cannot_see:
         if role in all_evil_roles_in_game:
-            invisible_roles.append(role_name_map.get(role, role))
+            role_name = role_data.get(role, {}).get('name', role)
+            if role in player_evil_roles:
+                # 자기 자신이 겸직하고 있는 역할
+                self_invisible_roles.append(role_name)
+            else:
+                # 다른 플레이어가 가진 역할
+                invisible_roles.append(role_name)
     
-    return invisible_roles
+    return invisible_roles, self_invisible_roles
 
 def get_korean_particle(name):
-    """한국어 조사 결정 (은/는)"""
-    particle_map = {
-        '오베론': '은',
-        '모드레드': '는', 
-        '모르가나': '는',
-        '암살자': '는',
-        '모드레드의 수하': '는'
-    }
-    return particle_map.get(name, '은')
+    """한국어 조사 결정 (은/는) - 받침 여부로 자동 판단"""
+    if not name:
+        return '은'
+    
+    # 마지막 글자의 유니코드 값으로 받침 여부 판단
+    last_char = name[-1]
+    if '가' <= last_char <= '힣':  # 한글인 경우
+        # 받침이 있으면 '은', 없으면 '는'
+        unicode_val = ord(last_char) - ord('가')
+        final_consonant = unicode_val % 28
+        return '은' if final_consonant != 0 else '는'
+    else:
+        return '은'  # 한글이 아닌 경우 기본값
 
 def generate_player_messages(assigned_players):
     """플레이어 메시지 및 이미지 생성"""
@@ -136,17 +155,29 @@ def generate_player_messages(assigned_players):
         
         # 현재 플레이어가 볼 수 없는 악인들
         current_faction = role_data.get(player.roles[0], {}).get("faction", "unknown")
-        invisible_evil_roles = get_invisible_evil_roles_for_player(player, assigned_players, role_data)
+        invisible_evil_roles, self_invisible_roles = get_invisible_evil_roles_for_player(player, assigned_players, role_data)
         
         invisible_message = ""
-        if invisible_evil_roles:
+        
+        # 오베론을 겸직하는지 확인
+        has_oberon = 'oberon' in player.roles
+        
+        # 다른 플레이어가 가진 볼 수 없는 역할들 (오베론을 겸직하지 않을 때만 표시)
+        if invisible_evil_roles and not has_oberon:
             if len(invisible_evil_roles) == 1:
                 particle = get_korean_particle(invisible_evil_roles[0])
-                invisible_message = f"\n({invisible_evil_roles[0]}{particle} 보이지 않습니다.)"
+                invisible_message += f"\n({invisible_evil_roles[0]}{particle} 보이지 않습니다.)"
             else:
                 # 여러 개일 때는 마지막 이름의 조사 사용
                 last_particle = get_korean_particle(invisible_evil_roles[-1])
-                invisible_message = f"\n({', '.join(invisible_evil_roles)}{last_particle} 보이지 않습니다.)"
+                invisible_message += f"\n({', '.join(invisible_evil_roles)}{last_particle} 보이지 않습니다.)"
+        
+        # 자기 자신이 겸직하고 있는 볼 수 없는 역할들
+        if self_invisible_roles:
+            if len(self_invisible_roles) == 1:
+                invisible_message += f"\n(동료 악인 {self_invisible_roles[0]}을 겸직하고 있어서 보이지 않습니다.)"
+            else:
+                invisible_message += f"\n(동료 악인 {', '.join(self_invisible_roles)}을 겸직하고 있어서 보이지 않습니다.)"
         
         for role_name in player.roles:
             role_info = role_data.get(role_name, {})
@@ -160,10 +191,6 @@ def generate_player_messages(assigned_players):
             # elif "{target_players}" in desc:
             #     desc = desc.format(target_players=target_text)
             
-            # 볼 수 없는 악인 정보 추가 (target_players가 있는 역할에만)
-            if "{target_players}" in role_info.get("desc", "") and invisible_message:
-                desc += invisible_message
-            
             # 최종 desc에 mark_safe 적용
             desc = mark_safe(desc)
             
@@ -173,7 +200,16 @@ def generate_player_messages(assigned_players):
             # 능력 보유 여부
             has_ability = len(role_data.get(role_name, {}).get('can_see', [])) > 0
             
-            messages.append({"bold": bold, "desc": desc, "visible": target_text,  "ability": has_ability})
+            # invisible_message는 능력이 있는 역할에만 추가
+            role_invisible_message = invisible_message if (role_info.get('can_see', []) and invisible_message) else ""
+            
+            messages.append({
+                "bold": bold, 
+                "desc": desc, 
+                "visible": target_text,  
+                "ability": has_ability,
+                "invisible_message": role_invisible_message
+            })
             images.append(get_role_image(role_name))
         
         # 첫 번째 역할의 진영 사용
