@@ -72,10 +72,10 @@
                     {% for player_obj in players_in_session %}
                     <div class="player-item-compact">
                         <div class="player-avatar-small">👤</div>
-                        <div class="player-nickname-compact">{{ player_obj.nickname }}</div>
-                        {% if player_obj.nickname == game_session.host_nickname %}
-                            <div class="player-host-badge-small">👑</div>
-                        {% endif %}
+                        <div class="player-nickname-compact">
+                            {{ player_obj.nickname }}
+                            {% if player_obj.nickname == game_session.host_nickname %}👑{% endif %}
+                        </div>
                     </div>
                     {% endfor %}
                 </div>

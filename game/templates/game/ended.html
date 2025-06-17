@@ -88,7 +88,10 @@
                         </div>
                         
                         <div class="player-role-info">
-                            <div class="player-role-nickname">{{ player.nickname }}</div>
+                            <div class="player-role-nickname">
+                                {{ player.nickname }}
+                                {% if player.nickname == game_session.host_nickname %}👑{% endif %}
+                            </div>
                             <div class="player-role-name">
                                 {% if player.roles and player.roles|length > 1 %}
                                     <!-- 다중 역할 -->
@@ -103,10 +106,6 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
-                        {% if player.nickname == game_session.host_nickname %}
-                            <div class="player-host-badge-small">👑</div>
-                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>

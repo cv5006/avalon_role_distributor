@@ -190,14 +190,13 @@
                         `;
                     }
                     
-                    const hostBadge = isHost ? '<span class="player-host-badge">👑</span>' : '';
+                    const hostBadge = isHost ? '👑' : '';
                     
                     playerItem.innerHTML = `
                         <div class="player-info">
                             <div class="player-avatar">👤</div>
                             <div class="player-details">
-                                <span class="player-nickname">${nickname}</span>
-                                ${hostBadge}
+                                <span class="player-nickname">${nickname}${hostBadge}</span>
                             </div>
                         </div>
                         ${kickButton}

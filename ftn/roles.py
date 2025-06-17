@@ -18,6 +18,7 @@ FORBIDDEN_COMBINATIONS = [
     ('mordred', 'oberon'),
     ('oberon', 'mordred'), 
     ('morgana', 'oberon'),
+    ('oberon', 'morgana'),
 ]
 
 class RolePlayer:

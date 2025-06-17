@@ -37,7 +37,6 @@
                 <div class="role-dnd-container" style="display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%; max-width: 400px; margin: 0 auto;">
                     <div class="role-list" id="inactive-cards" style="width: 100%; padding: 10px; border: 2px dashed #ccc; border-radius: 8px; min-height: 200px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
                         <h4 style="grid-column: span 2;">비활성 악인</h4>
-                        <div class="role-card" data-role-id="assassin">암살자</div>
                         <div class="role-card" data-role-id="morgana">모르가나</div>
                         <div class="role-card" data-role-id="oberon">오베론</div>
                         <div class="role-card" data-role-id="mordred">모드레드</div>
@@ -50,6 +49,7 @@
 
                     <div class="role-list" id="active-cards" style="width: 100%; padding: 10px; border: 2px dashed #ccc; border-radius: 8px; min-height: 200px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
                         <h4 style="grid-column: span 2;">활성 악인</h4>
+                        <div class="role-card" data-role-id="assassin">암살자</div>
                     </div>
 
                     <div class="combine-controls" style="display: flex; flex-direction: row; gap: 10px; margin-top: 10px;">
@@ -59,9 +59,15 @@
                 </div>
             </div>
 
+            <!-- 경고 메시지 영역 -->
+            <div id="validation-message" class="validation-message" style="display: none; margin: 20px 0; padding: 15px; border-radius: 8px; background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404;">
+                <div class="message-icon">⚠️</div>
+                <div class="message-text"></div>
+            </div>
+
             <!-- 메인 액션 버튼 -->
             <div class="main-action-section">
-                <button type="submit" class="create-session-btn">
+                <button type="submit" class="create-session-btn" id="create-btn">
                     <span class="btn-icon">🚀</span>
                     <span class="btn-text">세션 만들기</span>
                 </button>
@@ -92,25 +98,119 @@
 {% block extra_body %}
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        function toggleSelection(card) {
-            card.classList.toggle("selected");
+        // 금지된 조합 정보
+        const forbiddenCombinations = [
+            ['mordred', 'oberon'],
+            ['oberon', 'mordred'],
+            ['morgana', 'oberon'],
+            ['oberon', 'morgana']
+        ];
+        
+        function showValidationMessage(message) {
+            const messageDiv = document.getElementById("validation-message");
+            const messageText = messageDiv.querySelector(".message-text");
+            messageText.textContent = message;
+            messageDiv.style.display = "flex";
+            messageDiv.style.alignItems = "center";
+            messageDiv.style.gap = "10px";
+        }
+        
+        function hideValidationMessage() {
+            document.getElementById("validation-message").style.display = "none";
+        }
+        
+        function validateConfiguration() {
+            const activeCards = document.querySelectorAll("#active-cards .role-card");
+            const roleGroups = [];
+            let hasAssassin = false;
+
+            // 역할 그룹 구성 및 암살자 체크
+            activeCards.forEach(card => {
+                const rawId = card.dataset.roleId;
+                
+                if (card.dataset.combined === "true") {
+                    const components = rawId.split('_');
+                    roleGroups.push(components);
+                    if (components.includes('assassin')) hasAssassin = true;
+                } else {
+                    roleGroups.push([rawId]);
+                    if (rawId === 'assassin') hasAssassin = true;
+                }
+            });
+
+            // 1. 암살자 필수 체크
+            if (!hasAssassin) {
+                showValidationMessage("⚔️ 암살자는 필수 역할입니다! 활성 악인에 포함시켜주세요.");
+                return false;
             }
 
-            function moveSelected(sourceList, targetList) {
+            // 2. 3개 이상 겸직 체크
+            for (const group of roleGroups) {
+                if (group.length >= 3) {
+                    showValidationMessage("🚫 3개 이상의 역할은 겸직할 수 없습니다!");
+                    return false;
+                }
+            }
+
+            // 3. 금지된 조합 체크
+            for (const group of roleGroups) {
+                if (group.length === 2) {
+                    const [role1, role2] = group;
+                    for (const forbidden of forbiddenCombinations) {
+                        if ((forbidden[0] === role1 && forbidden[1] === role2) ||
+                            (forbidden[0] === role2 && forbidden[1] === role1)) {
+                            showValidationMessage(`🚫 ${role1}과(와) ${role2}는 겸직할 수 없습니다!`);
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            hideValidationMessage();
+            return true;
+        }
+
+        function toggleSelection(card) {
+            card.classList.toggle("selected");
+            // 선택 변경 시 검증
+            setTimeout(validateConfiguration, 100);
+        }
+
+        function moveSelected(sourceList, targetList) {
             const selected = sourceList.querySelectorAll(".role-card.selected");
             selected.forEach(card => {
                 card.classList.remove("selected");
                 targetList.appendChild(card);
             });
+            // 이동 후 검증
+            validateConfiguration();
         }
 
         function combineSelected(list) {
             const selected = list.querySelectorAll(".role-card.selected");
-            if (selected.length !== 2) return;
+            if (selected.length !== 2) {
+                showValidationMessage("🔗 겸직하려면 정확히 2개의 역할을 선택해주세요!");
+                return;
+            }
 
             const names = Array.from(selected).map(c => c.innerText);
-            const combinedName = names.join(" + ");
             const ids = Array.from(selected).map(c => c.dataset.roleId);
+            
+            // 겸직 전 미리 검증
+            if (ids.length >= 3) {
+                showValidationMessage("🚫 3개 이상의 역할은 겸직할 수 없습니다!");
+                return;
+            }
+
+            for (const forbidden of forbiddenCombinations) {
+                if ((forbidden[0] === ids[0] && forbidden[1] === ids[1]) ||
+                    (forbidden[0] === ids[1] && forbidden[1] === ids[0])) {
+                    showValidationMessage(`🚫 ${names[0]}과(와) ${names[1]}는 겸직할 수 없습니다!`);
+                    return;
+                }
+            }
+
+            const combinedName = names.join(" + ");
             const combinedID = ids.join("_");
 
             const newCard = document.createElement("div");
@@ -123,6 +223,9 @@
 
             selected.forEach(c => c.remove());
             list.appendChild(newCard);
+            
+            // 겸직 후 검증
+            validateConfiguration();
         }
 
         function splitSelected(list) {
@@ -131,18 +234,24 @@
                 if (!card.dataset.combined) return;
 
                 const parts = card.innerText.split(" + ");
-                parts.forEach(name => {
-                const partCard = document.createElement("div");
-                partCard.className = "role-card";
-                partCard.textContent = name;
-                partCard.dataset.roleId = name.replace(/\s+/g, '_');
-                partCard.addEventListener("click", () => toggleSelection(partCard));
-                list.appendChild(partCard);
+                const ids = card.dataset.roleId.split("_");
+                
+                parts.forEach((name, index) => {
+                    const partCard = document.createElement("div");
+                    partCard.className = "role-card";
+                    partCard.textContent = name;
+                    partCard.dataset.roleId = ids[index] || name.replace(/\s+/g, '_');
+                    partCard.addEventListener("click", () => toggleSelection(partCard));
+                    list.appendChild(partCard);
                 });
                 card.remove();
             });
+            
+            // 분리 후 검증
+            validateConfiguration();
         }
 
+        // 모든 역할 카드에 클릭 이벤트 추가 (기존 카드 + 새로 추가된 카드)
         document.querySelectorAll(".role-card").forEach(card => {
             card.addEventListener("click", () => toggleSelection(card));
         });
@@ -162,24 +271,33 @@
         document.getElementById("split").addEventListener("click", () => {
             splitSelected(document.getElementById("active-cards"));
         });
-    });
 
-    document.querySelector(".game-form").addEventListener("submit", () => {
-        const activeCards = document.querySelectorAll("#active-cards .role-card");
-        const roleGroups = [];
+        // 폼 제출 시 최종 검증
+        document.querySelector(".game-form").addEventListener("submit", (e) => {
+            if (!validateConfiguration()) {
+                e.preventDefault();
+                return false;
+            }
+            
+            const activeCards = document.querySelectorAll("#active-cards .role-card");
+            const roleGroups = [];
 
-        activeCards.forEach(card => {
-        const rawId = card.dataset.roleId;
+            activeCards.forEach(card => {
+                const rawId = card.dataset.roleId;
 
-        if (card.dataset.combined === "true") {
-            const components = rawId.split('_');
-            roleGroups.push(components);
-        } else {
-            roleGroups.push([rawId]);
-        }
+                if (card.dataset.combined === "true") {
+                    const components = rawId.split('_');
+                    roleGroups.push(components);
+                } else {
+                    roleGroups.push([rawId]);
+                }
+            });
+
+            document.getElementById("active-roles-data").value = JSON.stringify(roleGroups);
         });
 
-        document.getElementById("active-roles-data").value = JSON.stringify(roleGroups);
+        // 초기 검증 실행
+        validateConfiguration();
     });
 </script>
 {% endblock %}
