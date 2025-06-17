@@ -124,7 +124,7 @@
                     {% if player.role_messages and player.role_messages|length > 0 %}
                         {% for message in player.role_messages %}
                             <div class="role-detail-section">
-                                <p>{{ message.desc|safe }}</p>
+                                {{ message.desc|linebreaksbr|safe }}
                                 {% if not forloop.last %}<hr class="role-separator">{% endif %}
                             </div>
                         {% endfor %}
@@ -157,31 +157,4 @@
         </div>
         {% endif %}
     </div>
-{% endblock %}
-
-<!-- TODO: role.html 페이지에선 실시간 게임 상태 확인 하지 않음! -->
-{% block extra_body %}
-    <!-- 게임 상태 실시간 확인 -->
-    <script>
-    const playerNickname = "{{ player_nickname }}";
-    const playerPin = "{{ player_pin }}";
-    
-    function checkGameState() {
-        const url = "{% url 'get_state' game_session.session_id %}";
-        
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                // 게임이 종료되었을 때 종료 페이지로 리다이렉트
-                if (data.is_active === false) {
-                    window.location.href = "{% url 'ended' game_session.session_id %}?nickname=" + playerNickname + "&pin=" + playerPin;
-                    return;
-                }
-            })
-            .catch(err => console.error("게임 상태 확인 실패:", err));
-    }
-    
-    // 2초마다 게임 상태 확인
-    setInterval(checkGameState, 2000);
-    </script>
 {% endblock %}
