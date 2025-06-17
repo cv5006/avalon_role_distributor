@@ -159,11 +159,8 @@ def generate_player_messages(assigned_players):
         
         invisible_message = ""
         
-        # 오베론을 겸직하는지 확인
-        has_oberon = 'oberon' in player.roles
-        
-        # 다른 플레이어가 가진 볼 수 없는 역할들 (오베론을 겸직하지 않을 때만 표시)
-        if invisible_evil_roles and not has_oberon:
+        # 다른 플레이어가 가진 볼 수 없는 역할들
+        if invisible_evil_roles:
             if len(invisible_evil_roles) == 1:
                 particle = get_korean_particle(invisible_evil_roles[0])
                 invisible_message += f"\n({invisible_evil_roles[0]}{particle} 보이지 않습니다.)"
@@ -175,9 +172,9 @@ def generate_player_messages(assigned_players):
         # 자기 자신이 겸직하고 있는 볼 수 없는 역할들
         if self_invisible_roles:
             if len(self_invisible_roles) == 1:
-                invisible_message += f"\n(동료 악인 {self_invisible_roles[0]}을 겸직하고 있어서 보이지 않습니다.)"
+                invisible_message += f"\n(악인 {self_invisible_roles[0]}을 겸직하고 있어서 보이지 않습니다.)"
             else:
-                invisible_message += f"\n(동료 악인 {', '.join(self_invisible_roles)}을 겸직하고 있어서 보이지 않습니다.)"
+                invisible_message += f"\n(악인 {', '.join(self_invisible_roles)}을 겸직하고 있어서 보이지 않습니다.)"
         
         for role_name in player.roles:
             role_info = role_data.get(role_name, {})
@@ -200,16 +197,12 @@ def generate_player_messages(assigned_players):
             # 능력 보유 여부
             has_ability = len(role_data.get(role_name, {}).get('can_see', [])) > 0
             
-            # invisible_message는 능력이 있는 역할에만 추가
-            role_invisible_message = invisible_message if (role_info.get('can_see', []) and invisible_message) else ""
+            # 볼 수 없는 악인 정보를 별도 필드로 처리
+            invisible_info = ""
+            if role_info.get('can_see', []) and invisible_message:
+                invisible_info = mark_safe(invisible_message.strip())
             
-            messages.append({
-                "bold": bold, 
-                "desc": desc, 
-                "visible": target_text,  
-                "ability": has_ability,
-                "invisible_message": role_invisible_message
-            })
+            messages.append({"bold": bold, "desc": desc, "visible": target_text, "invisible": invisible_info, "ability": has_ability})
             images.append(get_role_image(role_name))
         
         # 첫 번째 역할의 진영 사용

@@ -128,6 +128,9 @@
                                 {% if message.ability %}
                                     <span class="target-players">{{ message.visible|safe }}</span>
                                 {% endif %}
+                                {% if message.invisible %}
+                                    <div class="invisible-info">{{ message.invisible|linebreaksbr|safe }}</div>
+                                {% endif %}
                                 {% if not forloop.last %}<hr class="role-separator">{% endif %}
                             </div>
                         {% endfor %}

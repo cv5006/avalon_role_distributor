@@ -56,7 +56,7 @@
     "desc": "선인들을 속이고 작전을 펼쳐 아발론을 무너뜨리세요!\n당신의 동료 악인 😈:",
     "faction": "evil",
     "priority": 5,
-    "can_see": ["assassin", "morgana", "mordred"],
+    "can_see": ["assassin", "morgana", "mordred", "minion_of_mordred"],
     "cannot_see": ["oberon"]
   },
   "mordred": {
