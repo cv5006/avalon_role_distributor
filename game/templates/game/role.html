@@ -125,6 +125,9 @@
                         {% for message in player.role_messages %}
                             <div class="role-detail-section">
                                 {{ message.desc|linebreaksbr|safe }}
+                                {% if message.ability %}
+                                    <span class="target-players">{{ message.visible|safe }}</span>
+                                {% endif %}
                                 {% if not forloop.last %}<hr class="role-separator">{% endif %}
                             </div>
                         {% endfor %}

@@ -132,7 +132,7 @@ def generate_player_messages(assigned_players):
         # 가시성 계산
         visible_players = get_visible_players(player, assigned_players, role_data)
         visible_names = [p.name for p in visible_players]
-        target_text = f'<span class="target-players">{", ".join(visible_names) if visible_names else "없음"}</span>'
+        target_text = ", ".join(visible_names) if visible_names else "없음"
         
         # 현재 플레이어가 볼 수 없는 악인들
         current_faction = role_data.get(player.roles[0], {}).get("faction", "unknown")
@@ -155,10 +155,10 @@ def generate_player_messages(assigned_players):
             desc = role_info.get("desc", f"당신은 {role_name}입니다.")
             
             # 플레이어 목록 치환
-            if "{final_visible_players}" in desc:
-                desc = desc.format(final_visible_players=target_text)
-            elif "{target_players}" in desc:
-                desc = desc.format(target_players=target_text)
+            # if "{final_visible_players}" in desc:
+            #     desc = desc.format(final_visible_players=target_text)
+            # elif "{target_players}" in desc:
+            #     desc = desc.format(target_players=target_text)
             
             # 볼 수 없는 악인 정보 추가 (target_players가 있는 역할에만)
             if "{target_players}" in role_info.get("desc", "") and invisible_message:
@@ -170,7 +170,10 @@ def generate_player_messages(assigned_players):
             # CSS의 white-space: pre-line으로 줄바꿈 처리하므로 \n 그대로 유지
             # desc = desc.replace('\n', '<br>') # 주석 처리
             
-            messages.append({"bold": bold, "desc": desc})
+            # 능력 보유 여부
+            has_ability = len(role_data.get(role_name, {}).get('can_see', [])) > 0
+            
+            messages.append({"bold": bold, "desc": desc, "visible": target_text,  "ability": has_ability})
             images.append(get_role_image(role_name))
         
         # 첫 번째 역할의 진영 사용
