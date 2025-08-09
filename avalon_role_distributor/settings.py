@@ -27,12 +27,19 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     'avalon-role-distributor.onrender.com'
+]
+
+# CSRF trusted origins for Render.com
+CSRF_TRUSTED_ORIGINS = [
+    'https://avalon-role-distributor.onrender.com',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
 ]
 
 
