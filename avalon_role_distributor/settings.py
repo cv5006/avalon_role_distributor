@@ -32,7 +32,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    'ard-630.duckdns.org',
+    'avalon-role-distributor.onrender.com'
 ]
 
 
