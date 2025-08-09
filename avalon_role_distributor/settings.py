@@ -32,7 +32,9 @@ DEBUG = False
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    'ard-630.duckdns.org',
+    '13.228.225.19',
+    '18.142.128.26',
+    '54.254.162.138',
 ]
 
 
