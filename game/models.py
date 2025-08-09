@@ -35,9 +35,26 @@ class GameSession(models.Model):
                 )
 
         # 역할 데이터 로드
-        role_messages_path = os.path.join(os.path.dirname(__file__), '..', 'ftn', 'role_messages.json')
-        with open(role_messages_path, 'r', encoding='utf-8') as f:
-            role_data = json.load(f)
+        from django.conf import settings
+        
+        possible_paths = [
+            os.path.join(os.path.dirname(__file__), '..', 'ftn', 'role_messages.json'),
+            os.path.join(settings.BASE_DIR, 'ftn', 'role_messages.json'),
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'ftn', 'role_messages.json'),
+        ]
+        
+        role_data = None
+        for path in possible_paths:
+            try:
+                if os.path.exists(path):
+                    with open(path, 'r', encoding='utf-8') as f:
+                        role_data = json.load(f)
+                        break
+            except Exception as e:
+                continue
+        
+        if role_data is None:
+            raise FileNotFoundError(f"role_messages.json을 찾을 수 없습니다. 시도한 경로들: {possible_paths}")
         
         good_roles = {name for name, info in role_data.items() if info['faction'] == 'good'}
         evil_roles = {name for name, info in role_data.items() if info['faction'] == 'evil'}

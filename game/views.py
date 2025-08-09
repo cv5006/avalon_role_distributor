@@ -11,9 +11,25 @@ from .models import GameSession, Player
 def get_role_data():
     """역할 데이터 로드"""
     import os
-    role_messages_path = os.path.join(os.path.dirname(__file__), '..', 'ftn', 'role_messages.json')
-    with open(role_messages_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    from django.conf import settings
+    
+    # 여러 경로 시도
+    possible_paths = [
+        os.path.join(os.path.dirname(__file__), '..', 'ftn', 'role_messages.json'),
+        os.path.join(settings.BASE_DIR, 'ftn', 'role_messages.json'),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'ftn', 'role_messages.json'),
+    ]
+    
+    for path in possible_paths:
+        try:
+            if os.path.exists(path):
+                with open(path, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+        except Exception as e:
+            continue
+    
+    # 모든 경로가 실패한 경우 에러 정보와 함께 예외 발생
+    raise FileNotFoundError(f"role_messages.json을 찾을 수 없습니다. 시도한 경로들: {possible_paths}")
 
 def sort_players_for_reveal(players, role_data):
     """역할 공개용 정렬: 악인→선인, 우선순위 순"""
@@ -58,12 +74,19 @@ def get_player_or_redirect(request, game_session, redirect_to='join'):
 # 간소화된 뷰 함수들
 def home(request):
     if request.method == 'POST':
-        # 기본 세션 생성 (암살자만 포함)
-        game_session = GameSession.objects.create(
-            role_groups=[['assassin']],
-            enable_dummy=request.POST.get('enable_dummy') == 'true'
-        )
-        return redirect('join', session_id=game_session.session_id)
+        try:
+            # 기본 세션 생성 (암살자만 포함)
+            game_session = GameSession.objects.create(
+                role_groups=[['assassin']],
+                enable_dummy=request.POST.get('enable_dummy') == 'true'
+            )
+            return redirect('join', session_id=game_session.session_id)
+        except Exception as e:
+            import logging
+            logging.error(f"GameSession 생성 실패: {str(e)}")
+            return render(request, 'game/home.html', {
+                'error_message': f'세션 생성에 실패했습니다: {str(e)}'
+            })
     
     return render(request, 'game/home.html')
 
